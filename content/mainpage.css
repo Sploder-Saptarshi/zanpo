@@ -1,0 +1,152 @@
+a:visited
+	{
+	color: #CC9933;
+	TEXT-DECORATION: none;
+	}
+
+a:active
+	{
+	color: #FFCC00;
+	TEXT-DECORATION: none;
+	}
+
+a:link	
+	{
+	color: #6699CC;
+	TEXT-DECORATION: none;
+	}
+
+small		
+	{
+	font-size: 80%;
+	}
+
+body
+	{
+	font-family: Trebuchet MS, Geneva, Tahoma, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	color: #cccc99;}
+
+h1
+	{
+	font-size: 24px;
+	color: #cccc99;
+	}
+		
+h1.right
+	{
+	text-align: right;
+	}	
+
+h2 		
+	{
+	font-size: 18px;
+	color: #cccc99;
+	}
+
+p		
+	{
+	font-size: 15px;
+	color: #cccc99;
+	}
+
+p.left	
+	{
+	text-align: left;
+	}
+
+p.right	
+	{
+	text-align: right;
+	}
+
+p.center
+	{
+	text-align: center;
+	}
+    
+td.mhead 
+	{
+	background-color: #8899AA;
+	color: #EEEEDD;
+	}
+
+td	
+	{
+	font-size: 15px;
+	color: #99ccff;
+	}
+
+.highlight		
+	{
+	color: #DDEEFF;
+	}
+	
+.bigger
+	{
+	font-size: 18px;
+	}
+	
+.smaller	
+	{
+	font-size: 12px;
+	}
+	
+.central
+	{
+	text-align: center;
+	}
+	
+.leftish	
+	{
+	text-align: left;
+	}
+	
+.rightish	
+	{
+	text-align: right;
+	}
+
+a.fhead		
+	{
+	font-size: 15px;
+	}
+                   
+a.fhead:link	
+	{
+	color: #EEEEFF;
+	}
+
+a.fhead:active	
+	{
+	color: #DDDDEE;
+	}
+
+a.fhead:visited	
+	{
+	color: #DDDDEE;
+	}
+
+a.fhead:hover
+	{
+	color: #FFFFFF;
+	}
+
+body table td.flashnav 
+	{
+	font-color: #fff;
+	font-weight: normal;
+	}
+	
+body td.flashnav a.fhead
+	{
+	font-size: 13px;
+	font-weight: normal;
+	}
+               
+hr	
+	{
+	height: 1px;
+   	margin: 0px;
+	color: #BBBBCC;
+	}
