@@ -1,0 +1,47 @@
+services:
+  zanpo-revival:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zanpo-revival
+    container_name: zanpo_revival_prod
+    ports:
+     - "127.0.0.1:8040:80"
+    depends_on:
+     - "db"
+    volumes:
+      # Production volumes - only expose specific writable directories
+      - php_sessions:/tmp # Store PHP sessions between container restarts
+    environment:
+      PHP_ENVIRONMENT: production
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      # Is this website public via a network?
+      # If you are running this PRIVATELY, set this to false
+      NETWORKED: ${NETWORKED}
+
+      # If yes, you must provide the source code to comply with the AGPL-3.0 license
+      # If you do not provide the source code, you are in violation of the AGPL-3.0 license
+      REPOSITORY: ${REPOSITORY}
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: zanpo_postgres_prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db:/bootstrap  # Mount the backup file into the container
+      - postgres_data:/var/lib/postgresql/data  # Persistent storage for the database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zanpo -d zanpo"]
+      interval: 30s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  php_sessions:
+    driver: local

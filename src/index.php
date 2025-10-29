@@ -13,7 +13,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/php/citynews.php" />
 <link rel="stylesheet" type="text/css"  href="content/mainpage.css" />
 <!-- Add Ruffle -->
-<script src="https://unpkg.com/@ruffle-rs/ruffle@latest/web/ruffle.js"></script>
+<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 <script type="text/javascript">
 _uacct = "UA-92552-2";
 urchinTracker();

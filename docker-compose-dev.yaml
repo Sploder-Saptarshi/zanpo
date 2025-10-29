@@ -1,0 +1,44 @@
+services:
+  zanpo-revival:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zanpo-revival
+    container_name: zanpo_revival
+    ports:
+     - "8030:80"
+    depends_on:
+     - "db"
+    volumes:
+      - ./src:/var/www/html # DEV-ONLY: No need to rebuild source for modifying code
+      - ./vendor:/var/www/html/vendor # DEV-ONLY: No need to rebuild source for modifying code
+    environment:
+      PHP_ENVIRONMENT: development
+      DOMAIN_NAME: http://mydomain.com
+      # Is this website public via a network?
+      # If you are running this PRIVATELY, set this to false
+      NETWORKED: true
+
+      # If yes, you must provide the source code to comply with the AGPL-3.0 license
+      # If you do not provide the source code, you are in violation of the AGPL-3.0 license
+      REPOSITORY: https://github.com/Sploder-Saptarshi/zanpo
+  db:
+    image: postgres:17
+    container_name: zanpo_postgres
+    environment:
+      POSTGRES_DB: zanpo
+      POSTGRES_USER: zanpo 
+      POSTGRES_PASSWORD: geoff
+    volumes:
+      - ./db:/bootstrap  # Mount the backup file into the container
+      - ./pgdata:/var/lib/postgresql/data  # Persistent storage for the database
+      # - ./db:/docker-entrypoint-initdb.d  # Mount the backup file into the container
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zanpo -d zanpo"]
+      interval: 30s
+      retries: 5
+volumes:
+  pgdata:
+    driver: local
