@@ -1,0 +1,351 @@
+body
+	{
+	font-family: Trebuchet MS, Geneva, Tahoma, Helvetica, Arial, sans-serif;
+	font-size: 15px;
+	color: #FFFFFF;
+	}
+
+a
+	{
+	color: #FF6600;
+	}
+	
+a:visited
+	{
+	color: #99CCFF;
+	TEXT-DECORATION: none;
+	}
+
+a:active
+	{
+	color: #FF9900;
+	TEXT-DECORATION: none;
+	}
+
+a:link
+	{
+	color: #FF9900;
+	TEXT-DECORATION: none;
+	}
+
+small
+	{
+	font-size: 80%;
+	}
+
+h1 
+	{
+	font-size: 24px;
+	color: #FFFFFF;
+	}
+		
+h1.right
+	{
+	text-align: right;
+	}
+
+h2 
+	{
+	font-size: 21px;
+	color: #FFFFFF;
+	}
+
+h2.right
+	{
+	text-align: right;
+	}
+
+h3 		
+	{
+	font-size: 18px;
+	color: #FFFFFF;
+	}
+
+h3.right	
+	{
+	text-align: right;
+	}
+
+h4
+	{
+	font-size: 15px;
+	text-align: left;
+	}
+
+p	{
+	font-size: 15px;
+	color: #FFFFCC;
+	}
+
+p.left
+	{
+	text-align: left;
+	}
+
+p.right		
+	{
+	text-align: right;
+	}
+
+p.center	
+	{
+	text-align: center;
+	}
+
+th	
+	{
+	background-image: url(../chrome/header-gradient.gif);
+	font-weight: bold;
+	text-align: center;
+	font-size: 21px;
+	color: #FFEECC;
+	}
+
+td		
+	{
+	font-weight: normal;
+	font-size: 15px;
+	font-style: normal;
+	}
+    
+td.center	
+	{
+	text-align: center;
+	}
+
+td.justify
+	{
+	text-align: justify;
+	}
+
+td.right
+	{
+	text-align: right;
+	}
+
+td.mhead
+	{
+	background-color: #8899AA;
+	color: #EEEEDD;
+	}
+	
+li
+	{
+	color: #FFEECC;
+	}
+
+.yhead
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 15px;
+	color: #FFFFDD;
+	background: #EECC33;
+	background-image: url(../chrome/header-gradient-yp.gif);
+	}
+
+.ysubhead
+	{
+	color: #EEEEFF;
+	background: #554488;
+	}
+	
+a.ysubhead:link
+	{
+	color: #EEEEFF;
+	text-decoration: underline;
+	}
+	
+a.ysubhead:visited
+	{
+	color: #EEEEFF;
+	text-decoration: underline;
+	}
+
+.yad	
+	{
+	color: #FFFFDD;
+	font-size: 13px;
+	font-style: bold;
+	background: #AA9977;
+	}
+
+.ytitle
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 14px;
+	font-style: normal;
+	color: #FFFFEE;
+	background: #777799;
+	}
+
+.ylink
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 14px;
+	font-style: normal;
+	color: #FFFFEE;
+	}
+
+a.ylink:link	
+	{
+	color: #EEEEFF;
+	}
+	
+a.ylink:active	
+	{
+	color: #DDDDEE;
+	}
+	
+a.ylink:visited	
+	{
+	color: #DDDDEE;
+	}
+	
+a.ylink:hover	
+	{
+	color: #FFFFFF;
+	}
+
+
+.yowner	
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 14px;
+	font-style: normal;
+	color: #333344;
+	background: #EECC33;
+	}
+
+.ydesc		
+	{
+	font-weight: normal;
+	text-align: center;
+	font-size: 13px;
+	font-style: normal;
+	color: #990000;
+	background: #DDAA11;
+	}
+
+.yinfo		
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 13px;
+	font-style: normal;
+	color: #666677;
+	background: #EECC33;
+	}
+
+.ycoords		
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 13px;
+	font-style: normal;
+	color: #FFFFFF;
+	background: #DDAA11;
+	}
+
+.ydate		
+	{
+	font-weight: bold;
+	text-align: center;
+	font-size: 13px;
+	font-style: normal;
+	color: #FFFFFF;
+	background: #DDAA11;
+	}
+
+li	
+	{
+	margin-bottom: 10px;
+	font-size: 14px;
+	}
+
+.highlight
+	{
+	color: #DDEEFF;
+	}
+	
+.bigger	
+	{
+	font-size: 15px;
+	}
+	
+.smaller		
+	{
+	font-size: 11px;
+	}
+	
+.leftish		
+	{
+	text-align: left;
+	}
+
+.justify		
+	{
+	text-align: justify;
+	}
+	
+.rightish		
+	{
+	text-align: right;
+	}
+
+input
+	{
+	color: #EEEEFF;
+	background: #330033;
+	font-size: 13px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #aabbcc;
+	}
+    
+textarea	
+	{
+	color: #EEEEFF;
+	background: #330033;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #aabbcc;
+	}
+
+a.fhead		
+	{
+	font-size: 15px;
+	font-weight: bold;
+	}
+                   
+a.fhead:link
+	{
+	color: #EEEEFF;
+	}
+
+a.fhead:active	
+	{
+	color: #DDDDEE;
+	}
+
+a.fhead:visited
+	{
+	color: #DDDDEE;
+	}
+
+a.fhead:hover
+	{
+	color: #FFFFFF;
+	}
+               
+hr
+	{
+	height: 1px;
+    margin: 0px;
+	color: #BBBBCC;
+	}
+
+    

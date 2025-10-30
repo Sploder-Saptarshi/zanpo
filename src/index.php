@@ -14,10 +14,6 @@
 <link rel="stylesheet" type="text/css"  href="content/mainpage.css" />
 <!-- Add Ruffle -->
 <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-<script type="text/javascript">
-_uacct = "UA-92552-2";
-urchinTracker();
-</script>
 <script language="JavaScript" type="text/javascript">
 var popupwin;
 function closepop()
