@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:ffdec="https://www.free-decompiler.com/flash" xmlns:xlink="http://www.w3.org/1999/xlink" ffdec:objectType="frame" height="118.95px" width="47.5px" xmlns="http://www.w3.org/2000/svg">
+  <g transform="matrix(1.0, 0.0, 0.0, 1.0, 23.35, 95.7)">
+    <use ffdec:characterId="377" height="38.0" transform="matrix(1.0, 0.0, 0.0, 1.0, -23.35, -14.75)" width="35.5" xlink:href="#shape0"/>
+    <use ffdec:characterId="381" height="112.0" transform="matrix(0.25, 0.0, 0.0, 0.25, -22.6, -9.0)" width="112.0" xlink:href="#sprite0"/>
+  </g>
+  <defs>
+    <g id="shape0" transform="matrix(1.0, 0.0, 0.0, 1.0, 23.35, 14.75)">
+      <path d="M12.15 -5.75 L4.15 -1.75 -11.85 -9.75 -3.85 -13.75 12.15 -5.75" fill="#d2c0b5" fill-rule="evenodd" stroke="none"/>
+      <path d="M4.15 -1.75 L12.15 -5.75 12.15 14.25 4.15 18.25 4.15 -1.75" fill="#644a39" fill-rule="evenodd" stroke="none"/>
+      <path d="M-11.85 -9.75 L4.15 -1.75 4.15 18.25 -11.85 10.25 -11.85 -9.75" fill="#b08e79" fill-rule="evenodd" stroke="none"/>
+      <pattern height="38" id="PatternID_377_1" overflow="visible" patternTransform="matrix(1.0, 0.0, 0.0, 1.0, -23.35, -14.75)" patternUnits="userSpaceOnUse" viewBox="0 0 34 38" width="34">
+        <image height="38" style="image-rendering:optimizeQuality" width="34" xlink:href="data:image/PNG;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAmCAYAAACh1knUAAABfUlEQVR4Xu2UMUrEQBiF5wYKLlgoauMBJCDWFhaiuNoIwhbWuxALEWwlRQqJIq6SRRAsrWxc0DPkBlZ2sdgzjHw/GRkHy8yoMA8eCVmG+fb9b0apqKioqKg/ovvrU51luXa/B1dVVXpvZ1en/YPfgbm5vNC4rmsBWVpYlGd2MggDNDw71q/jsbgsy28gvV5fr65t6iRJ/MMAwDgwEDwBKoqhzs8fxAAB565tVQbA2AaxYUjGXduq2JRUDIgZERCcHgA6nbkwXWFjs/lRmsoYml6IZ6anwvQETT729dPjoRzb7ta6bDy63dBXxbzAkArpUG53basC5P2tKzC270bLX8kAQl/cta0KEPzyvC1J5NmKvJOOakAwMF77wtVOIowiHcyKeec+URaI975wq5IIozAgmG4oCwQ33/yIY2uOLOb08O+xckCalPzIPr70wAC4o8FeR8Ox/OkO4TcbxmtRESCkQlecXoQXEMCYBJrxhJdJBRAgvI8hKioq6j/pE+YnccjVRTWQAAAAAElFTkSuQmCC"/>
+      </pattern>
+      <path d="M-23.35 -14.75 L10.65 -14.75 10.65 23.25 -23.35 23.25 -23.35 -14.75" ffdec:fill-bitmapId="376" style="fill:url(#PatternID_377_1)"/>
+    </g>
+    <g id="sprite0" transform="matrix(1.0, 0.0, 0.0, 1.0, 56.0, 56.0)">
+      <use ffdec:characterId="378" height="112.0" transform="matrix(1.0, 0.0, 0.0, 1.0, -56.0, -56.0)" width="112.0" xlink:href="#shape1"/>
+    </g>
+    <g id="shape1" transform="matrix(1.0, 0.0, 0.0, 1.0, 56.0, 56.0)">
+      <path d="M0.0 -56.0 Q23.2 -56.0 39.6 -39.6 56.0 -23.2 56.0 0.0 56.0 23.2 39.6 39.6 23.2 56.0 0.0 56.0 -23.2 56.0 -39.6 39.6 -56.0 23.2 -56.0 0.0 -56.0 -23.2 -39.6 -39.6 -23.2 -56.0 0.0 -56.0" fill="url(#gradient0)" fill-rule="evenodd" stroke="none"/>
+    </g>
+    <radialGradient cx="0" cy="0" gradientTransform="matrix(0.0696, 0.0, 0.0, 0.0696, 0.0, 0.0)" gradientUnits="userSpaceOnUse" id="gradient0" r="819.2" spreadMethod="pad">
+      <stop offset="0.0" stop-color="#ffffcc" stop-opacity="0.4"/>
+      <stop offset="0.611764705882353" stop-color="#ffffcc" stop-opacity="0.0"/>
+    </radialGradient>
+  </defs>
+</svg>
