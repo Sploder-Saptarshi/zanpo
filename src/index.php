@@ -14,6 +14,7 @@
 <link rel="stylesheet" type="text/css"  href="content/mainpage.css" />
 <!-- Add Ruffle -->
 <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+<script src="content/scripts/builder/index.js"></script>
 <script language="JavaScript" type="text/javascript">
 var popupwin;
 function closepop()
@@ -73,8 +74,8 @@ object p
 		<a class="fhead" style="color: #ff0;" href="php/makeacity.php" target="_blank"><strong>Make Your Own City</strong></a>&nbsp;&nbsp; &middot; &nbsp;
 		<a class="fhead" href="cities/citymanager.php" target="_blank">City Manager</a>&nbsp;&nbsp; &middot; &nbsp;
 		<a class="fhead" href="content/buildingtips.html" target="_blank">Building Tips</a>&nbsp;&nbsp; &middot; &nbsp;
-		<a class="fhead" href="3d/" target="_blank">3d VRML City</a>&nbsp;&nbsp; &middot; &nbsp;
-		<a class="fhead" href="latest_submissions.php" target="_blank">Latest Blocks &raquo;</a>&nbsp;&nbsp;
+		<a class="fhead" onclick="startBuilder();" href="javascript:void(0);">Open Builder</a>&nbsp;&nbsp; &middot; &nbsp;
+		<a class="fhead" href="latest_submissions.php" target="_blank">Latest Blocks &raquo;</a>
 		<br /><br />
 	  </td>
 	</tr>
