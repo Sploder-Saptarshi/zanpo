@@ -136,11 +136,24 @@ class ZanpoBuilder {
     }
     
     init() {
+        // Find the Flash embed container
+        const flashContainer = document.querySelector('object') || document.querySelector('embed');
+        const parentContainer = flashContainer ? flashContainer.parentElement : document.body;
+        
+        // Make parent container position relative if not already
+        if (parentContainer && getComputedStyle(parentContainer).position === 'static') {
+            parentContainer.style.position = 'relative';
+        }
+        
         this.overlay = this.createOverlay();
+        
+        // Append to the Flash container's parent instead of body
+        (parentContainer || document.body).appendChild(this.overlay);
+        
         this.canvas = document.getElementById('iso-canvas');
         this.renderer = new IsometricRenderer(this.canvas, {
             width: 480,
-            height: 470
+            height: 430
         });
         this.setupEventListeners();
         this.renderFamilies();
