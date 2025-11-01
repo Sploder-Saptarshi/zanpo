@@ -225,7 +225,7 @@ export class IsometricRenderer {
         this.ctx.restore();
     }
     
-    drawPlacementGuide(x, y, z, currentMaxZ = 0) {
+    drawLightBeam(x, y) {
         const pos = this.toIso(x, y, 0);
         
         // Always draw guide reaching up to 7 layers
@@ -252,18 +252,12 @@ export class IsometricRenderer {
         this.ctx.closePath();
         this.ctx.fill();
         
-        // Add a bright outer glow
-        this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.9)';
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.moveTo(pos.x, pos.y);
-        this.ctx.lineTo(topPos.x, topPos.y);
-        this.ctx.stroke();
-        this.ctx.restore();
-        
-        // Draw highlight at placement position - BIGGER AND BRIGHTER
+    }
+
+    drawPlacementHighlight(x, y, z) {
+        // Draw highlight diamond at placement position
         const placementPos = this.toIso(x, y, z);
-        this.ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
+        this.ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
         this.ctx.strokeStyle = 'rgba(255, 255, 0, 1.0)';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
@@ -274,6 +268,16 @@ export class IsometricRenderer {
         this.ctx.closePath();
         this.ctx.fill();
         this.ctx.stroke();
+    }
+
+    drawPlacementGuide(x, y, z, currentMaxZ = 0, previewBlockId = null) {
+        // Legacy method - kept for compatibility
+        // Now broken into drawLightBeam, drawPlacementHighlight
+        this.drawLightBeam(x, y);
+        if (previewBlockId && z > 0) {
+            this.drawBlock(x, y, z, previewBlockId, 0.6);
+        }
+        this.drawPlacementHighlight(x, y, z);
     }
     
     drawHoverHighlight(x, y) {
@@ -366,21 +370,141 @@ export class IsometricRenderer {
             }
         }
         
+        // Add placement guide elements to the depth-sorted list if hover is active
+        if (options.hoverX !== undefined && options.hoverY !== undefined && options.hoverZ !== undefined) {
+            const hoverX = options.hoverX;
+            const hoverY = options.hoverY;
+            const hoverZ = options.hoverZ;
+            
+            // Check if the hover position is visible based on vizplane/sectionMode
+            const hoverGridX = hoverX + 4; // Convert from -4..4 to 0..8
+            const hoverGridY = hoverY + 4;
+            let hoverVisible = true;
+            
+            if (sectionMode === -1) {
+                // Vertical section (by Y)
+                hoverVisible = hoverGridY < vizplane / 2;
+            } else if (sectionMode === 1) {
+                // Horizontal section (by X)
+                hoverVisible = hoverGridX < vizplane / 2;
+            } else {
+                // Diagonal section (default)
+                hoverVisible = hoverGridX + hoverGridY < vizplane;
+            }
+            
+            // Only show visual indicators if the hover position is visible
+            if (hoverVisible) {
+            
+            // Calculate depth for hover elements using same logic
+            let rotX = hoverX;
+            let rotY = hoverY;
+            
+            switch(this.rotation) {
+                case 90:
+                    rotX = -hoverY;
+                    rotY = hoverX;
+                    break;
+                case 180:
+                    rotX = -hoverX;
+                    rotY = -hoverY;
+                    break;
+                case 270:
+                    rotX = hoverY;
+                    rotY = -hoverX;
+                    break;
+                default:
+                    rotX = hoverX;
+                    rotY = hoverY;
+            }
+            
+            // Add cubical base (z=0) to rendering queue
+            blocks.push({
+                x: hoverX,
+                y: hoverY,
+                z: 0,
+                isGuideBase: true,
+                depth: (rotY + rotX) * 1000 + 0 // z=0 for base
+            });
+            
+            // Check if there's already a block at the hover position
+            const hasBlockAtHover = grid[hoverX] && grid[hoverX][hoverY] && grid[hoverX][hoverY][hoverZ] !== undefined;
+            
+            // Add preview block if provided (only if NOT hovering over existing block)
+            if (options.previewBlockId) {
+                // Find the highest block at this position
+                let topZ = 0;
+                
+                
+                // Use the maximum of hoverZ and topZ
+                const previewZ = Math.max(hoverZ, topZ);
+                
+                blocks.push({
+                    x: hoverX,
+                    y: hoverY,
+                    z: previewZ,
+                    blockId: options.previewBlockId,
+                    isPreview: true,
+                    depth: (rotY + rotX) * 1000 + previewZ
+                });
+                
+                // Add placement highlight at the same position as preview
+                blocks.push({
+                    x: hoverX,
+                    y: hoverY,
+                    z: previewZ,
+                    isHighlight: true,
+                    depth: (rotY + rotX) * 1000 + previewZ + 0.5 // Slightly above preview block
+                });
+            } else if (!hasBlockAtHover) {
+                // No preview, just show highlight at hover position (only if no block exists)
+                blocks.push({
+                    x: hoverX,
+                    y: hoverY,
+                    z: hoverZ,
+                    isHighlight: true,
+                    depth: (rotY + rotX) * 1000 + hoverZ + 0.5
+                });
+            }
+            } // End of hoverVisible check
+        }
+        
         // Sort blocks by depth for correct layering
         // Blocks with lower depth value should be drawn first (further back and lower)
         blocks.sort((a, b) => a.depth - b.depth);
         
-        // Draw all visible blocks with full opacity
+        // Draw all visible blocks and guide elements in depth order
         blocks.forEach(block => {
-            this.drawBlock(block.x, block.y, block.z, block.blockId, 1.0);
+            if (block.isPreview) {
+                this.drawBlock(block.x, block.y, block.z, block.blockId, 0.6); // 60% opacity for preview
+            } else if (block.isHighlight) {
+                this.drawPlacementHighlight(block.x, block.y, block.z);
+            } else {
+                this.drawBlock(block.x, block.y, block.z, block.blockId, 1.0);
+            }
         });
         
-        // Draw hover highlight
+        // Draw hover highlight at ground level (always on top) - but only if visible
         if (options.hoverX !== undefined && options.hoverY !== undefined) {
-            this.drawHoverHighlight(options.hoverX, options.hoverY);
+            // Check visibility for hover indicators
+            const hoverGridX = options.hoverX + 4;
+            const hoverGridY = options.hoverY + 4;
+            let hoverVisible = true;
             
-            if (options.hoverZ !== undefined) {
-                this.drawPlacementGuide(options.hoverX, options.hoverY, options.hoverZ, options.currentMaxZ || 0);
+            if (sectionMode === -1) {
+                hoverVisible = hoverGridY < vizplane / 2;
+            } else if (sectionMode === 1) {
+                hoverVisible = hoverGridX < vizplane / 2;
+            } else {
+                hoverVisible = hoverGridX + hoverGridY < vizplane;
+            }
+            
+            if (hoverVisible) {
+                this.drawHoverHighlight(options.hoverX, options.hoverY);
+                
+                // Draw light beam (always on top)
+                if (options.hoverZ !== undefined) {
+                    this.drawLightBeam(options.hoverX, options.hoverY);
+                }
             }
         }
     }

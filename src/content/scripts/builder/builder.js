@@ -420,7 +420,8 @@ class ZanpoBuilder {
             hoverX: this.hoveredCell?.x,
             hoverY: this.hoveredCell?.y,
             hoverZ: this.hoveredCell ? this.hoverLayer : undefined,
-            currentMaxZ: currentMaxZ
+            currentMaxZ: currentMaxZ,
+            previewBlockId: this.selectedBlock
         });
     }
     
@@ -621,6 +622,28 @@ class ZanpoBuilder {
     }
     
     placeBlock(x, y, z) {
+        // Check if the position is visible based on vizplane/sectionMode
+        const vizplane = this.visibility * 17;
+        const gridX = x + 4; // Convert from -4..4 to 0..8
+        const gridY = y + 4;
+        let visible = true;
+        
+        if (this.sectionMode === -1) {
+            // Vertical section (by Y)
+            visible = gridY < vizplane / 2;
+        } else if (this.sectionMode === 1) {
+            // Horizontal section (by X)
+            visible = gridX < vizplane / 2;
+        } else {
+            // Diagonal section (default)
+            visible = gridX + gridY < vizplane;
+        }
+        
+        if (!visible) {
+            console.log('Cannot place block in invisible area');
+            return;
+        }
+        
         if (!this.grid[x]) this.grid[x] = {};
         if (!this.grid[x][y]) this.grid[x][y] = {};
         
