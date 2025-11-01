@@ -5,7 +5,7 @@ import { IsometricRenderer } from './isometricRenderer.js';
 class ZanpoBuilder {
     constructor() {
         this.gridSize = 9; // 9x9 grid
-        this.maxLayers = 10; // Maximum height
+        this.maxLayers = 8; // Maximum height (layers 0-7)
         this.cellWidth = 32;
         this.cellHeight = 16;
         this.blockHeight = 20; // Height per layer in pixels
@@ -26,6 +26,7 @@ class ZanpoBuilder {
         this.hoverLayer = 0;
         
         this.isDraggingVisibility = false;
+        this.lockedColumn = null; // For Ctrl+light beam mode
         
         this.renderer = null;
         this.canvas = null;
@@ -414,8 +415,33 @@ class ZanpoBuilder {
         const rect = this.canvas.getBoundingClientRect();
         const screenX = e.clientX - rect.left;
         const screenY = e.clientY - rect.top;
+        const isCtrlPressed = e.ctrlKey || e.metaKey; // Support both Ctrl (Windows/Linux) and Cmd (Mac)
 
-        // Step 1: Check all existing blocks from front to back, top to bottom
+        // If Ctrl was just released, clear the locked column
+        if (!isCtrlPressed && this.lockedColumn) {
+            this.lockedColumn = null;
+        }
+
+        // If we have a locked column (Ctrl mode active), only adjust Z-axis
+        if (isCtrlPressed && this.lockedColumn) {
+            const gridX = this.lockedColumn.x;
+            const gridY = this.lockedColumn.y;
+
+            const groundPos = this.renderer.toIso(gridX, gridY, 0);
+            
+            // Calculate Z position based on mouse Y
+            const yDiff = groundPos.y - screenY;
+            let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
+            calculatedZ = Math.max(0, Math.min(this.maxLayers - 1, calculatedZ));
+
+            // Allow placement at any Z level in the locked column
+            this.hoveredCell = { x: gridX, y: gridY };
+            this.hoverLayer = calculatedZ;
+            this.renderMinimap();
+            return;
+        }
+
+        // Check for existing blocks from front to back, top to bottom
         let bestBlockHit = null;
         let bestBlockPriority = -Infinity;
 
@@ -440,7 +466,56 @@ class ZanpoBuilder {
             }
         }
 
-        // If we hit an existing block, select it
+        // If Ctrl is pressed and we're over a block OR ground, lock to that column and activate light beam mode
+        if (isCtrlPressed && !this.lockedColumn) {
+            if (bestBlockHit) {
+                // Lock to the column of the block we're hovering over
+                this.lockedColumn = { x: bestBlockHit.x, y: bestBlockHit.y };
+                
+                const gridX = bestBlockHit.x;
+                const gridY = bestBlockHit.y;
+
+                const groundPos = this.renderer.toIso(gridX, gridY, 0);
+                
+                // Calculate Z position based on mouse Y
+                const yDiff = groundPos.y - screenY;
+                let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
+                calculatedZ = Math.max(0, Math.min(this.maxLayers - 1, calculatedZ));
+
+                this.hoveredCell = { x: gridX, y: gridY };
+                this.hoverLayer = calculatedZ;
+                this.renderMinimap();
+                return;
+            } else {
+                // No block hit - check for ground level
+                for (let gridX = -4; gridX <= 4; gridX++) {
+                    for (let gridY = -4; gridY <= 4; gridY++) {
+                        const groundPos = this.renderer.toIso(gridX, gridY, 0);
+                        const dx = Math.abs(screenX - groundPos.x);
+                        const dy = Math.abs(screenY - groundPos.y);
+
+                        // Check if cursor is within the diamond shape of the ground tile
+                        if (dx / this.renderer.tileWidth + dy / this.renderer.tileHeight <= 1) {
+                            const priority = (gridY + gridX) * 1000;
+                            if (priority > bestBlockPriority) {
+                                bestBlockPriority = priority;
+                                // Lock to this ground position
+                                this.lockedColumn = { x: gridX, y: gridY };
+                                this.hoveredCell = { x: gridX, y: gridY };
+                                this.hoverLayer = 0; // Start at ground level
+                            }
+                        }
+                    }
+                }
+                
+                if (this.hoveredCell) {
+                    this.renderMinimap();
+                    return;
+                }
+            }
+        }
+
+        // Normal selection (no Ctrl or not in light beam zone)
         if (bestBlockHit) {
             this.hoveredCell = { x: bestBlockHit.x, y: bestBlockHit.y };
             this.hoverLayer = bestBlockHit.z;
@@ -448,56 +523,30 @@ class ZanpoBuilder {
             return;
         }
 
-        // Step 2: No block was hit. Now check if we're in a "light beam zone"
-        // Light beam is ONLY available when hovering vertically above an existing block in the same column
-        
+        // No block found - check for ground level placement (z=0)
         for (let gridX = -4; gridX <= 4; gridX++) {
             for (let gridY = -4; gridY <= 4; gridY++) {
-                // Find the highest block in this column
-                let highestBlockZ = -1;
-                for (let z = 0; z < this.maxLayers; z++) {
-                    if (this.grid[gridX]?.[gridY]?.[z]) {
-                        highestBlockZ = z;
-                    }
-                }
+                const groundPos = this.renderer.toIso(gridX, gridY, 0);
+                const dx = Math.abs(screenX - groundPos.x);
+                const dy = Math.abs(screenY - groundPos.y);
 
-                // If there's at least one block in this column (or it's ground level)
-                if (highestBlockZ >= -1) {
-                    const groundPos = this.renderer.toIso(gridX, gridY, 0);
-                    const topBlockPos = this.renderer.toIso(gridX, gridY, highestBlockZ >= 0 ? highestBlockZ : 0);
-                    
-                    // Check if cursor is within the vertical beam area (narrow horizontal range)
-                    const horizontalDist = Math.abs(screenX - groundPos.x);
-                    
-                    // Tighter threshold for light beam - must be very close to column center
-                    if (horizontalDist <= this.renderer.tileWidth / 2) {
-                        // Check if cursor is above the top block
-                        const layer7Pos = this.renderer.toIso(gridX, gridY, 7);
-                        
-                        if (screenY >= layer7Pos.y && screenY < topBlockPos.y) {
-                            // Calculate Z position for placement
-                            const yDiff = groundPos.y - screenY;
-                            let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
-                            calculatedZ = Math.max(0, Math.min(this.maxLayers - 1, calculatedZ));
-
-                            // Only allow placement ABOVE the highest existing block
-                            if (calculatedZ > highestBlockZ) {
-                                const priority = (gridY + gridX) * 1000;
-                                if (!bestBlockHit || priority > bestBlockPriority) {
-                                    this.hoveredCell = { x: gridX, y: gridY };
-                                    this.hoverLayer = calculatedZ;
-                                    this.renderMinimap();
-                                    return;
-                                }
-                            }
-                        }
+                // Check if cursor is within the diamond shape of the ground tile
+                if (dx / this.renderer.tileWidth + dy / this.renderer.tileHeight <= 1) {
+                    const priority = (gridY + gridX) * 1000;
+                    if (priority > bestBlockPriority) {
+                        bestBlockPriority = priority;
+                        this.hoveredCell = { x: gridX, y: gridY };
+                        this.hoverLayer = 0; // Ground level
                     }
                 }
             }
         }
 
-        // No block and no light beam zone found
-        this.hoveredCell = null;
+        if (this.hoveredCell) {
+            this.renderMinimap();
+        } else {
+            this.hoveredCell = null;
+        }
     }
     
     handleCanvasClick(e) {
@@ -717,9 +766,10 @@ class ZanpoBuilder {
     showTips() {
         alert(`ZANPO BUILDER TIPS:
 
-• Click on the grid to place blocks
+• Click on blocks to select, delete, or interact
+• Hold CTRL to access the light beam for placing blocks above
 • Move mouse up/down to change layer height
-• Yellow light shows where you can place
+• Yellow light beam shows where you can place
 • Blocks need support below them
 • Use tools: Place (1), Select (2), Delete (3)
 • Rotate view: Q/R keys or buttons
