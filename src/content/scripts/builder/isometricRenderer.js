@@ -1,4 +1,6 @@
 // Isometric 3D Renderer for Zanpo Builder
+import { blockRotations } from './blockMetadata.js';
+
 export class IsometricRenderer {
     constructor(canvas, options = {}) {
         this.canvas = canvas;
@@ -25,6 +27,43 @@ export class IsometricRenderer {
     
     setRotation(angle) {
         this.rotation = angle;
+        // Preload rotated variants for all blocks that have rotation mappings
+        this.preloadRotatedVariants();
+    }
+    
+    // Preload images for rotated block variants based on current rotation
+    preloadRotatedVariants() {
+        // For each block in the rotation mapping, preload the appropriate variant
+        for (const blockId in blockRotations) {
+            const rotatedId = this.getRotatedBlockId(parseInt(blockId));
+            if (rotatedId && !this.blockImages[rotatedId] && !this.loadingImages[rotatedId]) {
+                this.loadBlockImage(rotatedId).catch(err => {
+                    console.warn(`Failed to preload rotated block ${rotatedId}:`, err);
+                });
+            }
+        }
+    }
+    
+    // Get the appropriate block variant for the current rotation
+    getRotatedBlockId(blockId) {
+        const rotationFamily = blockRotations[blockId];
+        if (!rotationFamily) return blockId; // No rotation mapping, use original
+        
+        // Map view rotation to array index
+        // rotation: 0° -> index 0, 90° -> index 1, 180° -> index 2, 270° -> index 3
+        const rotationIndex = this.rotation / 90;
+        
+        // For 2-way rotations (only 2 entries), map 0°/180° to index 0, 90°/270° to index 1
+        if (rotationFamily.length === 2) {
+            return rotationFamily[rotationIndex % 2];
+        }
+        
+        // For 4-way rotations
+        if (rotationFamily.length === 4) {
+            return rotationFamily[rotationIndex];
+        }
+        
+        return blockId; // Fallback
     }
     
     toIso(x, y, z = 0) {
@@ -160,7 +199,10 @@ export class IsometricRenderer {
     
     drawBlock(x, y, z, blockId, alpha = 1.0) {
         const pos = this.toIso(x, y, z);
-        const img = this.blockImages[blockId];
+        
+        // Apply block rotation mapping based on view rotation
+        const rotatedBlockId = this.getRotatedBlockId(blockId);
+        const img = this.blockImages[rotatedBlockId];
         
         if (!img) {
             // Draw placeholder - isometric cube
