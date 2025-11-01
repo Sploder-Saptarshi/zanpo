@@ -37,6 +37,28 @@ function getLogin()
 {
 	return loggedIn;
 }
+window.RufflePlayer = window.RufflePlayer || {};
+window.RufflePlayer.config = {
+	// Options affecting the whole page
+	"publicPath": undefined,
+	"polyfills": true,
+	"autoplay": "on",
+	"unmuteOverlay": "hidden",
+	"wmode": "window",
+	"letterbox": "fullscreen",
+	"warnOnUnsupportedContent": true,
+	"contextMenu": false,
+	"backgroundColor": "#000000",
+	"upgradeToHttps": window.location.protocol === "https:",
+	"maxExecutionDuration": {"secs": 15, "nanos": 0},
+	"logLevel": "error",
+	"base": null,
+	"menu": true,
+	"salign": "TR",
+	"scale": "noborder",
+	"quality": "high",
+	"preloader": false,
+};
 </script>
 <link rel="stylesheet" type="text/css"  href="content/style.css" />
 <style type="text/css" media="screen">
@@ -57,7 +79,7 @@ object p
     <td align="left" colspan="2"><img align="left" hspace="0" vspace="0" src="chrome/maintitle.gif" border="0" width="770" height="36" alt="Zanpo" /></td>
   </tr>
   <tr valign="top">
-    <td align="left"><object align="right" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+    <td align="left" bgcolor="#666666"><object align="right" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0"
  id="zanpo" width="760" height="470">
         <param name="movie" value="zanpo.swf" />
