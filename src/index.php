@@ -1,3 +1,7 @@
+<?php
+// Do not cache this page whatsoever even when going back and forth using the arrows on top of browser
+header("Cache-Control: no-cache, no-store, must-revalidate");
+?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Welcome to Zanpo, Virtual Cities: The Online City Simulation Multiplayer Game - MMORPG</title>
