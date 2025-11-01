@@ -14,7 +14,10 @@
 <link rel="stylesheet" type="text/css"  href="content/mainpage.css" />
 <!-- Add Ruffle -->
 <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-<script src="content/scripts/builder/index.js"></script>
+<!-- Zanpo Builder -->
+<link rel="stylesheet" type="text/css" href="content/scripts/builder/builder.css" />
+<script type="module" src="content/scripts/builder/index.js"></script>
+<script type="module" src="content/scripts/builder/builder.js"></script>
 <script language="JavaScript" type="text/javascript">
 var popupwin;
 function closepop()
