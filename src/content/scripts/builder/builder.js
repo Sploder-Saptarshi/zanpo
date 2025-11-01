@@ -53,8 +53,8 @@ class ZanpoBuilder {
                     
                     <!-- Left Panel -->
                     <div class="builder-left-panel" id="left-panel">
-                        <div class="builder-logo">BUILD</div>
-                        
+                        <div class="arrow"></div>
+                        <div class="builder-logo"></div>
                         <div class="builder-minimap">
                             <div class="minimap-grid" id="minimap-grid"></div>
                         </div>
@@ -838,6 +838,24 @@ Have fun building your city!`);
             this.animationFrame = null;
         }
     }
+    
+    destroy() {
+        // Stop animation loop
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+        
+        // Remove overlay from DOM
+        if (this.overlay && this.overlay.parentNode) {
+            this.overlay.parentNode.removeChild(this.overlay);
+        }
+        
+        // Clear references
+        this.overlay = null;
+        this.canvas = null;
+        this.renderer = null;
+    }
 }
 
 // Global instance
@@ -867,12 +885,14 @@ window.startBuilder = function() {
 
 window.stopBuilder = function() {
     if (builderInstance) {
-        builderInstance.close();
+        builderInstance.destroy();
+        builderInstance = null;
     }
 };
 
 // Auto-start if in development
 if (window.location.search.includes('builder=1')) {
+    login(true);
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.startBuilder(), 1000);
     });

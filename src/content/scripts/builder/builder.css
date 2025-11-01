@@ -36,12 +36,13 @@
 
 /* Left Panel - Controls and Info */
 .builder-left-panel {
-    width: 120px;
+    width: 165px;
     height: 100%;
     display: flex;
     flex-direction: column;
     padding: 10px;
     box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .builder-left-panel.theme-red {
@@ -52,28 +53,35 @@
 .builder-logo {
     width: 100%;
     height: 60px;
-    background: linear-gradient(180deg, #555 0%, #333 100%);
-    border: 2px solid #666;
-    border-radius: 6px;
-    display: flex;
+    background: url('../../../content/build.svg');
+    background-repeat: no-repeat;
+    display: absolute;
     align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    margin-bottom: 15px;
+    justify-content: flex-start;
+    padding-left: 8px;
+    gap: 8px;
+    margin-top: -38px;
+    margin-left: 73px;
+}
+
+.arrow {
+    background: url('../../../content/arrow.png');
+    width: 50px;
+    height: 50px;
+    margin-left: 12px;
 }
 
 .builder-minimap {
     width: 100%;
-    height: 100px;
+    height: 145px;
     background: #000;
     border: 2px solid #666;
     border-radius: 4px;
     margin-bottom: 15px;
     position: relative;
     overflow: hidden;
+    margin-top: -15px;
+    margin-left: -2px;
 }
 
 .minimap-grid {
@@ -324,6 +332,7 @@
     padding: 10px;
     box-sizing: border-box;
     overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .builder-right-panel.theme-red {
