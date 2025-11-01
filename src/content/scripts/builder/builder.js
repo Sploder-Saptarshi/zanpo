@@ -412,51 +412,92 @@ class ZanpoBuilder {
     
     handleCanvasMouseMove(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Try to find which cell we're hovering over by checking ALL cells
-        // and seeing if the mouse is within the vertical column of that cell
-        let foundCell = null;
-        let foundZ = 0;
-        
-        for (let gridX = -4; gridX <= 4; gridX++) {
-            for (let gridY = -4; gridY <= 4; gridY++) {
-                // Get the position of this cell at ground level
-                const groundPos = this.renderer.toIso(gridX, gridY, 0);
-                
-                // Check if mouse X is within the horizontal bounds of this cell's column
-                // A cell's column extends horizontally ±tileWidth from its center
-                const horizontalDist = Math.abs(x - groundPos.x);
-                
-                if (horizontalDist <= this.renderer.tileWidth) {
-                    // Now check if mouse Y is within the vertical range (from ground up to layer 7)
-                    const layer7Pos = this.renderer.toIso(gridX, gridY, 7);
-                    
-                    // The column extends from layer7Pos.y (top) to groundPos.y (bottom)
-                    if (y >= layer7Pos.y && y <= groundPos.y) {
-                        // We're hovering over this cell's column!
-                        // Calculate which layer based on Y position
-                        const yDiff = groundPos.y - y;
-                        let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
-                        calculatedZ = Math.max(0, Math.min(7, calculatedZ));
-                        
-                        foundCell = { x: gridX, y: gridY };
-                        foundZ = calculatedZ;
-                        break;
+        const screenX = e.clientX - rect.left;
+        const screenY = e.clientY - rect.top;
+
+        // Step 1: Check all existing blocks from front to back, top to bottom
+        let bestBlockHit = null;
+        let bestBlockPriority = -Infinity;
+
+        for (let gridX = 4; gridX >= -4; gridX--) {
+            for (let gridY = 4; gridY >= -4; gridY--) {
+                for (let z = this.maxLayers - 1; z >= 0; z--) {
+                    if (this.grid[gridX]?.[gridY]?.[z]) {
+                        const isoPos = this.renderer.toIso(gridX, gridY, z);
+                        const dx = Math.abs(screenX - isoPos.x);
+                        const dy = Math.abs(screenY - (isoPos.y + this.renderer.blockHeight / 2));
+
+                        // Check if cursor is within the diamond shape of the block top
+                        if (dx / this.renderer.tileWidth + dy / this.renderer.tileHeight <= 1) {
+                            const priority = (gridY + gridX) * 1000 + z;
+                            if (priority > bestBlockPriority) {
+                                bestBlockPriority = priority;
+                                bestBlockHit = { x: gridX, y: gridY, z: z };
+                            }
+                        }
                     }
                 }
             }
-            if (foundCell) break;
         }
-        
-        if (foundCell) {
-            this.hoveredCell = foundCell;
-            this.hoverLayer = foundZ;
+
+        // If we hit an existing block, select it
+        if (bestBlockHit) {
+            this.hoveredCell = { x: bestBlockHit.x, y: bestBlockHit.y };
+            this.hoverLayer = bestBlockHit.z;
             this.renderMinimap();
-        } else {
-            this.hoveredCell = null;
+            return;
         }
+
+        // Step 2: No block was hit. Now check if we're in a "light beam zone"
+        // Light beam is ONLY available when hovering vertically above an existing block in the same column
+        
+        for (let gridX = -4; gridX <= 4; gridX++) {
+            for (let gridY = -4; gridY <= 4; gridY++) {
+                // Find the highest block in this column
+                let highestBlockZ = -1;
+                for (let z = 0; z < this.maxLayers; z++) {
+                    if (this.grid[gridX]?.[gridY]?.[z]) {
+                        highestBlockZ = z;
+                    }
+                }
+
+                // If there's at least one block in this column (or it's ground level)
+                if (highestBlockZ >= -1) {
+                    const groundPos = this.renderer.toIso(gridX, gridY, 0);
+                    const topBlockPos = this.renderer.toIso(gridX, gridY, highestBlockZ >= 0 ? highestBlockZ : 0);
+                    
+                    // Check if cursor is within the vertical beam area (narrow horizontal range)
+                    const horizontalDist = Math.abs(screenX - groundPos.x);
+                    
+                    // Tighter threshold for light beam - must be very close to column center
+                    if (horizontalDist <= this.renderer.tileWidth / 2) {
+                        // Check if cursor is above the top block
+                        const layer7Pos = this.renderer.toIso(gridX, gridY, 7);
+                        
+                        if (screenY >= layer7Pos.y && screenY < topBlockPos.y) {
+                            // Calculate Z position for placement
+                            const yDiff = groundPos.y - screenY;
+                            let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
+                            calculatedZ = Math.max(0, Math.min(this.maxLayers - 1, calculatedZ));
+
+                            // Only allow placement ABOVE the highest existing block
+                            if (calculatedZ > highestBlockZ) {
+                                const priority = (gridY + gridX) * 1000;
+                                if (!bestBlockHit || priority > bestBlockPriority) {
+                                    this.hoveredCell = { x: gridX, y: gridY };
+                                    this.hoverLayer = calculatedZ;
+                                    this.renderMinimap();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // No block and no light beam zone found
+        this.hoveredCell = null;
     }
     
     handleCanvasClick(e) {

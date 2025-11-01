@@ -336,15 +336,16 @@ export class IsometricRenderer {
                         blockId,
                         pos,
                         // For isometric, render order should be: back to front, bottom to top
-                        // Lower grid y and x should render first (back), higher z renders first (bottom)
-                        depth: (yInt + xInt) * 1000 - zInt
+                        // Lower grid y and x should render first (back), lower z should render first (bottom)
+                        // So higher values = draw later (on top)
+                        depth: (yInt + xInt) * 1000 + zInt
                     });
                 }
             }
         }
         
         // Sort blocks by depth for correct layering
-        // Blocks further back (lower depth value) should be drawn first
+        // Blocks with lower depth value should be drawn first (further back and lower)
         blocks.sort((a, b) => a.depth - b.depth);
         
         // Draw all visible blocks with full opacity
