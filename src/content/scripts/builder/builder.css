@@ -169,6 +169,41 @@
     cursor: grabbing;
 }
 
+.builder-section-control {
+    margin-top: 15px;
+}
+
+.section-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.section-button {
+    flex: 1;
+    padding: 8px;
+    background: rgba(0,0,0,0.5);
+    border: 2px solid #666;
+    border-radius: 4px;
+    color: #ccc;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.section-button:hover {
+    background: rgba(50,50,50,0.7);
+    border-color: #999;
+}
+
+.section-button.selected {
+    background: rgba(74, 158, 255, 0.3);
+    border-color: #4a9eff;
+    color: #fff;
+}
+
 /* Center Panel - 3D View */
 .builder-center {
     flex: 1;

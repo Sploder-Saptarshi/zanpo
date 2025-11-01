@@ -286,6 +286,10 @@ export class IsometricRenderer {
         this.clear();
         this.drawGrid(options.gridSize || 9);
         
+        // Use vizplane from options (controlled by visibility slider)
+        const sectionMode = options.sectionMode !== undefined ? options.sectionMode : 0;
+        const vizplane = options.vizplane !== undefined ? options.vizplane : 17; // Default = show all
+        
         // Collect all blocks with their positions
         const blocks = [];
         
@@ -293,6 +297,25 @@ export class IsometricRenderer {
             const xInt = parseInt(x);
             for (const y in grid[x]) {
                 const yInt = parseInt(y);
+                
+                // Apply section visibility (matching Flash viewer setviz function)
+                let visible = true;
+                const gridX = xInt + 4; // Convert from -4..4 to 0..8
+                const gridY = yInt + 4;
+                
+                if (sectionMode === -1) {
+                    // Vertical section (by Y)
+                    visible = gridY < vizplane / 2;
+                } else if (sectionMode === 1) {
+                    // Horizontal section (by X)
+                    visible = gridX < vizplane / 2;
+                } else {
+                    // Diagonal section (default) - always active when vizplane < 17
+                    visible = gridX + gridY < vizplane;
+                }
+                
+                if (!visible) continue;
+                
                 for (const z in grid[x][y]) {
                     const zInt = parseInt(z);
                     const blockId = grid[x][y][z];
@@ -314,14 +337,11 @@ export class IsometricRenderer {
         
         // Sort blocks by depth for correct layering
         // Blocks further back (lower depth value) should be drawn first
-        // Depth is calculated as pos.y + pos.x, so lower values = further back
         blocks.sort((a, b) => a.depth - b.depth);
         
-        // Draw blocks
-        const maxLayer = options.maxLayer !== undefined ? options.maxLayer : 999;
+        // Draw all visible blocks with full opacity
         blocks.forEach(block => {
-            const alpha = block.z <= maxLayer ? 1.0 : 0.1;
-            this.drawBlock(block.x, block.y, block.z, block.blockId, alpha);
+            this.drawBlock(block.x, block.y, block.z, block.blockId, 1.0);
         });
         
         // Draw hover highlight

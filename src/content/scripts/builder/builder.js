@@ -17,6 +17,7 @@ class ZanpoBuilder {
         this.rotation = 0; // 0, 90, 180, 270
         this.theme = 'default'; // default or red
         this.visibility = 1.0; // For layer visibility
+        this.sectionMode = 0; // 0 = diagonal, -1 = vertical, 1 = horizontal (matching Flash viewer)
         
         this.blockTitle = "A City Block";
         this.blockDescription = "A nondescript city block, in a middle-class neighborhood.";
@@ -66,6 +67,15 @@ class ZanpoBuilder {
                                 <div class="visibility-track" id="visibility-track">
                                     <div class="visibility-thumb" id="visibility-thumb"></div>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div class="builder-section-control">
+                            <div class="visibility-label">Section View</div>
+                            <div class="section-buttons">
+                                <button class="section-button selected" id="section-diagonal" title="Diagonal Section">⬘</button>
+                                <button class="section-button" id="section-horizontal" title="Horizontal Section">—</button>
+                                <button class="section-button" id="section-vertical" title="Vertical Section">|</button>
                             </div>
                         </div>
                     </div>
@@ -186,6 +196,11 @@ class ZanpoBuilder {
         // Visibility slider
         this.setupVisibilitySlider();
         
+        // Section buttons
+        document.getElementById('section-diagonal').addEventListener('click', () => this.setSectionMode(0));
+        document.getElementById('section-horizontal').addEventListener('click', () => this.setSectionMode(1));
+        document.getElementById('section-vertical').addEventListener('click', () => this.setSectionMode(-1));
+        
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
     }
@@ -199,6 +214,8 @@ class ZanpoBuilder {
             const rect = slider.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const percentage = Math.max(0, Math.min(1, x / rect.width));
+            // Visibility controls vizplane (0 to 17), matching Flash viewer
+            // 0 = show nothing, 1 = show everything
             this.visibility = percentage;
             track.style.width = (percentage * 100) + '%';
             this.updateVisibility();
@@ -224,7 +241,7 @@ class ZanpoBuilder {
     }
     
     updateVisibility() {
-        // Visibility is now handled in renderGrid
+        // Visibility controls the cutting plane, not layers
         this.renderGrid();
     }
     
@@ -251,6 +268,21 @@ class ZanpoBuilder {
                 panel.classList.remove('theme-red');
             }
         });
+    }
+    
+    setSectionMode(mode) {
+        this.sectionMode = mode;
+        document.querySelectorAll('.section-button').forEach(btn => btn.classList.remove('selected'));
+        
+        if (mode === 0) {
+            document.getElementById('section-diagonal').classList.add('selected');
+        } else if (mode === 1) {
+            document.getElementById('section-horizontal').classList.add('selected');
+        } else if (mode === -1) {
+            document.getElementById('section-vertical').classList.add('selected');
+        }
+        
+        this.renderGrid();
     }
     
     rotate(degrees) {
@@ -351,7 +383,8 @@ class ZanpoBuilder {
     renderGrid() {
         if (!this.renderer) return;
         
-        const maxLayer = Math.floor(this.visibility * this.maxLayers);
+        // Visibility controls vizplane (0 to 17), matching Flash viewer
+        const vizplane = this.visibility * 17;
         
         // Get current max Z for hovered cell
         let currentMaxZ = 0;
@@ -368,7 +401,8 @@ class ZanpoBuilder {
         
         this.renderer.render(this.grid, {
             gridSize: this.gridSize,
-            maxLayer: maxLayer,
+            vizplane: vizplane,
+            sectionMode: this.sectionMode,
             hoverX: this.hoveredCell?.x,
             hoverY: this.hoveredCell?.y,
             hoverZ: this.hoveredCell ? this.hoverLayer : undefined,
@@ -398,21 +432,22 @@ class ZanpoBuilder {
             }
             
             // Calculate desired Z level based on mouse Y position
-            // Get the isometric Y position of the base tile
-            const basePos = this.renderer.toIso(gridCoords.x, gridCoords.y, 0);
+            // The light beam always extends from layer 0 to layer 7
+            // Get the isometric Y position at the base of the cell
+            const layer0Pos = this.renderer.toIso(gridCoords.x, gridCoords.y, 0);
             
-            // Calculate how far above/below the base tile the mouse is
-            // Each layer is 20 pixels tall (blockHeight)
-            const yDiff = basePos.y - y;
-            
-            // Convert Y difference to layer number
-            // Positive yDiff = mouse above base = higher layers
+            // Calculate which layer based on Y position
+            // Mouse above layer0Pos = higher layers
+            const yDiff = layer0Pos.y - y;
             let calculatedZ = Math.floor(yDiff / this.renderer.blockHeight);
             
-            // Clamp between maxZ (can't place below existing) and 7 (max height)
-            calculatedZ = Math.max(maxZ, Math.min(7, calculatedZ));
+            // Clamp to valid range
+            calculatedZ = Math.max(0, Math.min(7, calculatedZ));
             
-            this.hoverLayer = Math.max(0, calculatedZ);
+            // Can't place below existing blocks
+            calculatedZ = Math.max(maxZ, calculatedZ);
+            
+            this.hoverLayer = calculatedZ;
             
             this.renderMinimap();
         } else {
