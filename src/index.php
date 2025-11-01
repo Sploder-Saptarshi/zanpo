@@ -20,6 +20,7 @@
 <script type="module" src="content/scripts/builder/builder.js"></script>
 <script language="JavaScript" type="text/javascript">
 var popupwin;
+var loggedIn = false;
 function closepop()
 {
 	if (popupwin != null)
@@ -28,6 +29,14 @@ function closepop()
 			popupwin.close();
 	}
 };
+function login(state)
+{
+	loggedIn = state;
+}
+function getLogin()
+{
+	return loggedIn;
+}
 </script>
 <link rel="stylesheet" type="text/css"  href="content/style.css" />
 <style type="text/css" media="screen">

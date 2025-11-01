@@ -15,7 +15,6 @@ class ZanpoBuilder {
         this.selectedBlock = 1;
         this.currentTool = 'place'; // place, delete, select
         this.rotation = 0; // 0, 90, 180, 270
-        this.theme = 'default'; // default or red
         this.visibility = 1.0; // For layer visibility
         this.sectionMode = 0; // 0 = diagonal, -1 = vertical, 1 = horizontal (matching Flash viewer)
         
@@ -117,11 +116,6 @@ class ZanpoBuilder {
                         <div class="panel-section-title">• Block Variants •</div>
                         <div class="block-variants" id="block-variants"></div>
                         
-                        <div class="color-selector" id="color-selector">
-                            <div class="color-option selected" data-theme="default" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);"></div>
-                            <div class="color-option" data-theme="red" style="background: linear-gradient(135deg, #4a1a1a 0%, #2a0a0a 100%);"></div>
-                        </div>
-                        
                         <div class="builder-action-buttons">
                             <button class="action-button restore" id="btn-restore">Hold / Restore</button>
                             <button class="action-button submit" id="btn-submit">Submit ➜</button>
@@ -161,7 +155,6 @@ class ZanpoBuilder {
         this.preloadBlockImages();
         this.renderGrid();
         this.renderMinimap();
-        this.updateTheme();
         this.startRenderLoop();
     }
     
@@ -190,15 +183,7 @@ class ZanpoBuilder {
         document.getElementById('block-description').addEventListener('input', (e) => {
             this.blockDescription = e.target.value;
         });
-        
-        // Theme selector
-        document.querySelectorAll('.color-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                const theme = e.target.dataset.theme;
-                this.setTheme(theme);
-            });
-        });
-        
+                
         // Canvas interactions
         this.canvas.addEventListener('mousemove', (e) => this.handleCanvasMouseMove(e));
         this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
@@ -263,25 +248,6 @@ class ZanpoBuilder {
         this.currentTool = tool;
         document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('selected'));
         document.getElementById(`tool-${tool}`).classList.add('selected');
-    }
-    
-    setTheme(theme) {
-        this.theme = theme;
-        this.updateTheme();
-        document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-        document.querySelector(`[data-theme="${theme}"]`).classList.add('selected');
-    }
-    
-    updateTheme() {
-        const panels = ['left-panel', 'center-panel', 'right-panel'];
-        panels.forEach(id => {
-            const panel = document.getElementById(id);
-            if (this.theme === 'red') {
-                panel.classList.add('theme-red');
-            } else {
-                panel.classList.remove('theme-red');
-            }
-        });
     }
     
     setSectionMode(mode) {
@@ -880,10 +846,29 @@ let builderInstance = null;
 // Function to start builder (called from index.php)
 window.startBuilder = function() {
     if (!builderInstance) {
+        // Until the loggedin global variable is true, we don't start... keep listening for it, as soon as it is true, we start
+        if (getLogin() === false) {
+            console.log('Waiting for user to be logged in before starting builder...');
+            const checkLoginInterval = setInterval(() => {
+                console.log("waiting");
+                if (getLogin()) {
+                    clearInterval(checkLoginInterval);
+                    console.log('User logged in, starting builder...');
+                    window.startBuilder();
+                }
+            }, 500);
+            return;
+        }
         builderInstance = new ZanpoBuilder();
         builderInstance.init();
     }
     builderInstance.show();
+};
+
+window.stopBuilder = function() {
+    if (builderInstance) {
+        builderInstance.close();
+    }
 };
 
 // Auto-start if in development
