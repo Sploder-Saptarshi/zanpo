@@ -59,7 +59,7 @@ class ZanpoBuilder {
                             <div class="minimap-grid" id="minimap-grid"></div>
                         </div>
                         
-                        <button class="builder-tips-button" id="tips-button">TIPS!</button>
+                        <button class="builder-tips-button" style="display:none;" id="tips-button">TIPS!</button>
                         
                         <div class="builder-visibility-control">
                             <div class="visibility-label">Visibility</div>
@@ -415,40 +415,44 @@ class ZanpoBuilder {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        const gridCoords = this.renderer.fromIso(x, y);
+        // Try to find which cell we're hovering over by checking ALL cells
+        // and seeing if the mouse is within the vertical column of that cell
+        let foundCell = null;
+        let foundZ = 0;
         
-        if (gridCoords.x >= -4 && gridCoords.x <= 4 && 
-            gridCoords.y >= -4 && gridCoords.y <= 4) {
-            this.hoveredCell = { x: gridCoords.x, y: gridCoords.y };
-            
-            // Calculate max Z (tallest block at this position)
-            let maxZ = 0;
-            if (this.grid[gridCoords.x] && this.grid[gridCoords.x][gridCoords.y]) {
-                for (let z = 0; z <= 9; z++) {
-                    if (this.grid[gridCoords.x][gridCoords.y][z]) {
-                        maxZ = z + 1;
+        for (let gridX = -4; gridX <= 4; gridX++) {
+            for (let gridY = -4; gridY <= 4; gridY++) {
+                // Get the position of this cell at ground level
+                const groundPos = this.renderer.toIso(gridX, gridY, 0);
+                
+                // Check if mouse X is within the horizontal bounds of this cell's column
+                // A cell's column extends horizontally ±tileWidth from its center
+                const horizontalDist = Math.abs(x - groundPos.x);
+                
+                if (horizontalDist <= this.renderer.tileWidth) {
+                    // Now check if mouse Y is within the vertical range (from ground up to layer 7)
+                    const layer7Pos = this.renderer.toIso(gridX, gridY, 7);
+                    
+                    // The column extends from layer7Pos.y (top) to groundPos.y (bottom)
+                    if (y >= layer7Pos.y && y <= groundPos.y) {
+                        // We're hovering over this cell's column!
+                        // Calculate which layer based on Y position
+                        const yDiff = groundPos.y - y;
+                        let calculatedZ = Math.round(yDiff / this.renderer.blockHeight);
+                        calculatedZ = Math.max(0, Math.min(7, calculatedZ));
+                        
+                        foundCell = { x: gridX, y: gridY };
+                        foundZ = calculatedZ;
+                        break;
                     }
                 }
             }
-            
-            // Calculate desired Z level based on mouse Y position
-            // The light beam always extends from layer 0 to layer 7
-            // Get the isometric Y position at the base of the cell
-            const layer0Pos = this.renderer.toIso(gridCoords.x, gridCoords.y, 0);
-            
-            // Calculate which layer based on Y position
-            // Mouse above layer0Pos = higher layers
-            const yDiff = layer0Pos.y - y;
-            let calculatedZ = Math.floor(yDiff / this.renderer.blockHeight);
-            
-            // Clamp to valid range
-            calculatedZ = Math.max(0, Math.min(7, calculatedZ));
-            
-            // Can't place below existing blocks
-            calculatedZ = Math.max(maxZ, calculatedZ);
-            
-            this.hoverLayer = calculatedZ;
-            
+            if (foundCell) break;
+        }
+        
+        if (foundCell) {
+            this.hoveredCell = foundCell;
+            this.hoverLayer = foundZ;
             this.renderMinimap();
         } else {
             this.hoveredCell = null;
@@ -473,10 +477,27 @@ class ZanpoBuilder {
         if (!this.grid[x]) this.grid[x] = {};
         if (!this.grid[x][y]) this.grid[x][y] = {};
         
-        // Check if there's a block below (except for ground layer)
-        if (z > 0 && !this.grid[x][y][z - 1]) {
-            console.log('Cannot place block without support below');
+        // If there's already a block at this position, don't place
+        if (this.grid[x][y][z]) {
+            console.log('Block already exists at this position');
             return;
+        }
+        
+        // Check if there's support below (except for ground layer z=0)
+        if (z > 0) {
+            let hasSupport = false;
+            // Check all layers below to see if there's any block
+            for (let checkZ = 0; checkZ < z; checkZ++) {
+                if (this.grid[x][y][checkZ]) {
+                    hasSupport = true;
+                    break;
+                }
+            }
+            
+            if (!hasSupport) {
+                console.log('Cannot place block without support below');
+                return;
+            }
         }
         
         this.grid[x][y][z] = this.selectedBlock;

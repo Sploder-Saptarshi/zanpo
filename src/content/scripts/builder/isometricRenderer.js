@@ -232,32 +232,40 @@ export class IsometricRenderer {
         const guideHeight = 7;
         const topPos = this.toIso(x, y, guideHeight);
         
-        // Draw vertical light beam
+        // Draw vertical light beam - MUCH THICKER AND MORE VISIBLE
         const gradient = this.ctx.createLinearGradient(
             pos.x, pos.y,
             topPos.x, topPos.y
         );
-        gradient.addColorStop(0, 'rgba(255, 255, 0, 0.8)');
-        gradient.addColorStop(0.3, 'rgba(255, 255, 0, 0.5)');
-        gradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+        gradient.addColorStop(0, 'rgba(255, 255, 100, 0.9)');
+        gradient.addColorStop(0.3, 'rgba(255, 255, 150, 0.7)');
+        gradient.addColorStop(1, 'rgba(255, 255, 200, 0.3)');
         
-        // Draw thick beam
+        // Draw much thicker beam (12 pixels wide instead of 6)
         this.ctx.save();
         this.ctx.fillStyle = gradient;
         this.ctx.beginPath();
-        this.ctx.moveTo(pos.x - 3, pos.y);
-        this.ctx.lineTo(topPos.x - 3, topPos.y);
-        this.ctx.lineTo(topPos.x + 3, topPos.y);
-        this.ctx.lineTo(pos.x + 3, pos.y);
+        this.ctx.moveTo(pos.x - 8, pos.y);
+        this.ctx.lineTo(topPos.x - 8, topPos.y);
+        this.ctx.lineTo(topPos.x + 8, topPos.y);
+        this.ctx.lineTo(pos.x + 8, pos.y);
         this.ctx.closePath();
         this.ctx.fill();
+        
+        // Add a bright outer glow
+        this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.9)';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.moveTo(pos.x, pos.y);
+        this.ctx.lineTo(topPos.x, topPos.y);
+        this.ctx.stroke();
         this.ctx.restore();
         
-        // Draw highlight at placement position
+        // Draw highlight at placement position - BIGGER AND BRIGHTER
         const placementPos = this.toIso(x, y, z);
-        this.ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
-        this.ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
-        this.ctx.lineWidth = 2;
+        this.ctx.fillStyle = 'rgba(255, 255, 0, 0.6)';
+        this.ctx.strokeStyle = 'rgba(255, 255, 0, 1.0)';
+        this.ctx.lineWidth = 3;
         this.ctx.beginPath();
         this.ctx.moveTo(placementPos.x, placementPos.y - this.tileHeight);
         this.ctx.lineTo(placementPos.x + this.tileWidth, placementPos.y);
