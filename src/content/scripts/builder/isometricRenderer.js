@@ -329,6 +329,29 @@ export class IsometricRenderer {
                     const blockId = grid[x][y][z];
                     
                     const pos = this.toIso(xInt, yInt, zInt);
+                    
+                    // Calculate depth based on ROTATED coordinates for proper sorting
+                    let rotX = xInt;
+                    let rotY = yInt;
+                    
+                    switch(this.rotation) {
+                        case 90:
+                            rotX = -yInt;
+                            rotY = xInt;
+                            break;
+                        case 180:
+                            rotX = -xInt;
+                            rotY = -yInt;
+                            break;
+                        case 270:
+                            rotX = yInt;
+                            rotY = -xInt;
+                            break;
+                        default: // 0 degrees
+                            rotX = xInt;
+                            rotY = yInt;
+                    }
+                    
                     blocks.push({
                         x: xInt,
                         y: yInt,
@@ -336,9 +359,8 @@ export class IsometricRenderer {
                         blockId,
                         pos,
                         // For isometric, render order should be: back to front, bottom to top
-                        // Lower grid y and x should render first (back), lower z should render first (bottom)
-                        // So higher values = draw later (on top)
-                        depth: (yInt + xInt) * 1000 + zInt
+                        // Use ROTATED coordinates for depth calculation
+                        depth: (rotY + rotX) * 1000 + zInt
                     });
                 }
             }

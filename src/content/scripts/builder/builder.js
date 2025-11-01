@@ -455,7 +455,29 @@ class ZanpoBuilder {
 
                         // Check if cursor is within the diamond shape of the block top
                         if (dx / this.renderer.tileWidth + dy / this.renderer.tileHeight <= 1) {
-                            const priority = (gridY + gridX) * 1000 + z;
+                            // Calculate priority using ROTATED coordinates (same as rendering)
+                            let rotX = gridX;
+                            let rotY = gridY;
+                            
+                            switch(this.rotation) {
+                                case 90:
+                                    rotX = -gridY;
+                                    rotY = gridX;
+                                    break;
+                                case 180:
+                                    rotX = -gridX;
+                                    rotY = -gridY;
+                                    break;
+                                case 270:
+                                    rotX = gridY;
+                                    rotY = -gridX;
+                                    break;
+                                default: // 0 degrees
+                                    rotX = gridX;
+                                    rotY = gridY;
+                            }
+                            
+                            const priority = (rotY + rotX) * 1000 + z;
                             if (priority > bestBlockPriority) {
                                 bestBlockPriority = priority;
                                 bestBlockHit = { x: gridX, y: gridY, z: z };
@@ -532,7 +554,29 @@ class ZanpoBuilder {
 
                 // Check if cursor is within the diamond shape of the ground tile
                 if (dx / this.renderer.tileWidth + dy / this.renderer.tileHeight <= 1) {
-                    const priority = (gridY + gridX) * 1000;
+                    // Calculate priority using ROTATED coordinates
+                    let rotX = gridX;
+                    let rotY = gridY;
+                    
+                    switch(this.rotation) {
+                        case 90:
+                            rotX = -gridY;
+                            rotY = gridX;
+                            break;
+                        case 180:
+                            rotX = -gridX;
+                            rotY = -gridY;
+                            break;
+                        case 270:
+                            rotX = gridY;
+                            rotY = -gridX;
+                            break;
+                        default: // 0 degrees
+                            rotX = gridX;
+                            rotY = gridY;
+                    }
+                    
+                    const priority = (rotY + rotX) * 1000;
                     if (priority > bestBlockPriority) {
                         bestBlockPriority = priority;
                         this.hoveredCell = { x: gridX, y: gridY };
